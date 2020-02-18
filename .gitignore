@@ -1,0 +1,7 @@
+# Java build direction
+target/
+
+# Eclipse Files
+.classpath
+.project
+.settings/
