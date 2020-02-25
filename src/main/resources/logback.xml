@@ -12,6 +12,7 @@
     </appender>
 
     <logger name="org.wjh" level="TRACE" />
+    <logger name="org.springframework.cloud.sleuth.instrument.web.TraceWebFilter" level="DEBUG" />
 
     <root level="INFO">
         <appender-ref ref="CONSOLE" />

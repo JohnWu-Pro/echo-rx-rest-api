@@ -3,9 +3,7 @@ package org.wjh.service.impl;
 import static java.lang.System.currentTimeMillis;
 import static org.springframework.http.MediaType.APPLICATION_FORM_URLENCODED;
 import static org.springframework.web.reactive.function.BodyInserters.fromFormData;
-import static org.springframework.web.util.UriComponentsBuilder.fromHttpUrl;
 
-import java.net.URI;
 import java.util.Random;
 
 import org.slf4j.Logger;
@@ -44,10 +42,8 @@ public class MessageServiceImpl implements MessageService {
     }
 
     private Mono<String> remoteGet(String input) {
-        URI url = fromHttpUrl(remoteUrl).queryParam("input", input).build().toUri();
-
         return webClient.get()//@formatter:off
-                .uri(url)
+                .uri(remoteUrl, builder -> builder.queryParam("input", input).build())
                 .retrieve()
                 .bodyToMono(String.class);//@formatter:on
     }
@@ -62,10 +58,8 @@ public class MessageServiceImpl implements MessageService {
     }
 
     private Mono<String> remotePost(String input) {
-        URI url = fromHttpUrl(remoteUrl).build().toUri();
-
         return webClient.post()//@formatter:off
-                 .uri(url)
+                 .uri(remoteUrl)
                  .contentType(APPLICATION_FORM_URLENCODED)
                  .body(fromFormData("input", input)
                          .with("timestamp", String.valueOf(currentTimeMillis()))
