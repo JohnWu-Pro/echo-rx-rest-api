@@ -4,12 +4,12 @@ import org.springframework.core.Ordered;
 import org.springframework.web.server.ServerWebExchange;
 import org.springframework.web.server.WebFilter;
 import org.springframework.web.server.WebFilterChain;
-import org.wjh.http.server.LoggingServerHttpHandler.LoggingServerHttpRequest;
+import org.wjh.http.server.ServerHttpLoggingHandler.LoggingServerHttpRequest;
 
 import brave.Span;
 import reactor.core.publisher.Mono;
 
-class LoggingServerHttpWebFilter implements WebFilter, Ordered {
+class ServerHttpLoggingWebFilter implements WebFilter, Ordered {
 
     private static final String TRACE_REQUEST_ATTR = "org.springframework.cloud.sleuth.instrument.web.TraceWebFilter.TRACE";
 

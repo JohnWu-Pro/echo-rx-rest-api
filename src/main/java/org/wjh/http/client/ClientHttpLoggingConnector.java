@@ -32,16 +32,16 @@ import brave.propagation.TraceContext.Extractor;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-class LoggingClientHttpConnector implements ClientHttpConnector {
+class ClientHttpLoggingConnector implements ClientHttpConnector {
 
-    private static final Logger logger = LoggerFactory.getLogger(LoggingClientHttpConnector.class);
+    private static final Logger logger = LoggerFactory.getLogger(ClientHttpLoggingConnector.class);
 
     private final ClientHttpConnector delegate;
     private final HttpLogger httpLogger;
 
     private Extractor<HttpHeaders> extractor;
 
-    LoggingClientHttpConnector(ClientHttpConnector delegate, HttpLogger httpLogger) {
+    ClientHttpLoggingConnector(ClientHttpConnector delegate, HttpLogger httpLogger) {
         this.delegate = delegate;
         this.httpLogger = httpLogger;
     }

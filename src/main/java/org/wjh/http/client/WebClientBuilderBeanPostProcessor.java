@@ -34,7 +34,7 @@ public class WebClientBuilderBeanPostProcessor implements BeanPostProcessor {
 
     private WebClient.Builder decorate(WebClient.Builder webClientBuilder) {
         return webClientBuilder //@formatter:off
-                .clientConnector(new LoggingClientHttpConnector(connector, httpLogger))
+                .clientConnector(new ClientHttpLoggingConnector(connector, httpLogger))
                 ; //@formatter:on
     }
 }

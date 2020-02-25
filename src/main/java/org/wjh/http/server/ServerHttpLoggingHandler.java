@@ -29,14 +29,14 @@ import brave.Span;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-class LoggingServerHttpHandler implements HttpHandler {
+class ServerHttpLoggingHandler implements HttpHandler {
 
-    private static final Logger logger = LoggerFactory.getLogger(LoggingServerHttpHandler.class);
+    private static final Logger logger = LoggerFactory.getLogger(ServerHttpLoggingHandler.class);
 
     private final HttpHandler delegate;
     private final HttpLogger httpLogger;
 
-    LoggingServerHttpHandler(HttpHandler delegate, HttpLogger httpLogger) {
+    ServerHttpLoggingHandler(HttpHandler delegate, HttpLogger httpLogger) {
         this.delegate = delegate;
         this.httpLogger = httpLogger;
     }

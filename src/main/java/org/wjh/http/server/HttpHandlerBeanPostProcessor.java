@@ -26,6 +26,6 @@ public class HttpHandlerBeanPostProcessor implements BeanPostProcessor {
     }
 
     private HttpHandler decorate(HttpHandler delegate) {
-        return new LoggingServerHttpHandler(delegate, httpLogger);
+        return new ServerHttpLoggingHandler(delegate, httpLogger);
     }
 }
