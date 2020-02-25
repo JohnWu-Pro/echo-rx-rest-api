@@ -7,7 +7,7 @@ import org.springframework.context.annotation.Configuration;
 
 @Configuration(proxyBeanMethods = false)
 @ConditionalOnWebApplication(type = ConditionalOnWebApplication.Type.REACTIVE)
-@ConditionalOnProperty(value = "http.inbound.logging", havingValue = "true", matchIfMissing = false)
+@ConditionalOnProperty(value = "server.http.logging", havingValue = "true", matchIfMissing = false)
 public class ServerHttpLoggingWebFilterAutoConfiguration {
 
     @Bean

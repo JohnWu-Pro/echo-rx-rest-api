@@ -9,7 +9,7 @@ import org.springframework.web.reactive.function.client.WebClient;
 import org.wjh.http.logging.HttpLogger;
 
 @Component
-@ConditionalOnProperty(value = "http.outbound.logging", havingValue = "true", matchIfMissing = false)
+@ConditionalOnProperty(value = "client.http.logging", havingValue = "true", matchIfMissing = false)
 public class WebClientBuilderBeanPostProcessor implements BeanPostProcessor {
 
     private final ClientHttpConnector connector;

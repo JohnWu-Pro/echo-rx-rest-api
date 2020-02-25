@@ -8,7 +8,7 @@ import org.springframework.stereotype.Component;
 import org.wjh.http.logging.HttpLogger;
 
 @Component
-@ConditionalOnProperty(value = "http.inbound.logging", havingValue = "true", matchIfMissing = false)
+@ConditionalOnProperty(value = "server.http.logging", havingValue = "true", matchIfMissing = false)
 public class HttpHandlerBeanPostProcessor implements BeanPostProcessor {
 
     private final HttpLogger httpLogger;
