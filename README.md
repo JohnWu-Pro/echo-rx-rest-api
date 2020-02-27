@@ -35,5 +35,4 @@ This is a simple message echoing REST service, includes the following points:
    ```
 
 # TODOs
-1. HTTP request and response logging seems not stable, sometimes it works just fine without any issue, and sometimes it throws 
-   WARN and/or ERROR of `only one connection receive subscriber allowed`. Not sure what is the root cause yet.
+1. Add response header X-B3-TraceId
