@@ -1,6 +1,5 @@
 package org.wjh.http.client;
 
-import static java.time.Duration.ofMillis;
 import static org.wjh.http.logging.HttpLogger.EMPTY_BODY_MONO;
 import static org.wjh.http.logging.HttpLogger.MessageDirection.Inbound;
 import static org.wjh.http.logging.HttpLogger.MessageDirection.Outbound;
@@ -27,6 +26,7 @@ import org.wjh.http.logging.HttpLogger;
 import org.wjh.http.logging.WiretapRecorder;
 import org.wjh.tracing.TracingUtils.TracingContext;
 
+import brave.Span;
 import brave.Tracing;
 import brave.propagation.TraceContext.Extractor;
 import reactor.core.publisher.Flux;
@@ -53,6 +53,10 @@ class ClientHttpLoggingConnector implements ClientHttpConnector {
         return extractor;
     }
 
+    private Span currentSpan(HttpHeaders headers) {
+        return Tracing.currentTracer().toSpan(extractor().extract(headers).context());
+    }
+
     @Override
     public Mono<ClientHttpResponse> connect(HttpMethod method, URI uri, Function<? super ClientHttpRequest, Mono<Void>> requestCallback) {
         if (httpLogger.shouldLog(method, uri)) {
@@ -74,7 +78,7 @@ class ClientHttpLoggingConnector implements ClientHttpConnector {
         boolean shouldLogBody = httpLogger.shouldLogRequestBody(request.getMethod(), headers);
         Mono<byte[]> bodyMono = shouldLogBody ? request.getRecorder().getContent().checkpoint("LoggingClientHttpRequest") : EMPTY_BODY_MONO;
 
-        bodyMono.delaySubscription(ofMillis(1L)).subscribe(body -> executeInContext(request.getTracingContext(), //@formatter:off
+        bodyMono.subscribe(body -> executeInContext(request.getTracingContext(), //@formatter:off
                 () -> httpLogger.logRequest(Outbound, request.getMethod().name(), request.getURI(), headers, body)
                 )); //@formatter:on
     }
@@ -87,7 +91,7 @@ class ClientHttpLoggingConnector implements ClientHttpConnector {
         boolean shouldLogBody = httpLogger.shouldLogResponseBody(statusCode, headers);
         Mono<byte[]> bodyMono = shouldLogBody ? response.getRecorder().getContent().checkpoint("LoggingClientHttpResponse") : EMPTY_BODY_MONO;
 
-        bodyMono.delaySubscription(ofMillis(1L)).subscribe(body -> executeInContext(response.getTracingContext(), //@formatter:off
+        bodyMono.subscribe(body -> executeInContext(response.getTracingContext(), //@formatter:off
                 () -> httpLogger.logResponse(Inbound, statusCode, null, headers, body)
                 )); //@formatter:on
     }
@@ -112,7 +116,7 @@ class ClientHttpLoggingConnector implements ClientHttpConnector {
         }
 
         public WiretapRecorder getRecorder() {
-            Assert.notNull(recorder, "No WiretapRecorder: was the client request written?");
+            Assert.notNull(recorder, "No Wiretap: was the client request written?");
             return recorder;
         }
 
@@ -148,7 +152,7 @@ class ClientHttpLoggingConnector implements ClientHttpConnector {
         private void triggerLogging() {
             if (logCount.getAndIncrement() == 0) {
 
-                context.span = Tracing.currentTracer().toSpan(extractor().extract(getHeaders()).context());
+                context.span = currentSpan(getHeaders());
                 executeInContext(context, () -> logRequest(this));
             } else {
                 logger.debug("Suppressed of triggering logging.");

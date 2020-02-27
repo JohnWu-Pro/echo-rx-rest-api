@@ -1,6 +1,5 @@
 package org.wjh.http.server;
 
-import static java.time.Duration.ofMillis;
 import static org.wjh.http.logging.HttpLogger.EMPTY_BODY_MONO;
 import static org.wjh.http.logging.HttpLogger.MessageDirection.Inbound;
 import static org.wjh.http.logging.HttpLogger.MessageDirection.Outbound;
@@ -59,7 +58,7 @@ class ServerHttpLoggingHandler implements HttpHandler {
         boolean shouldLogBody = httpLogger.shouldLogRequestBody(request.getMethod(), headers);
         Mono<byte[]> bodyMono = shouldLogBody ? request.getRecorder().getContent().checkpoint("LoggingServerHttpRequest") : EMPTY_BODY_MONO;
 
-        bodyMono.delaySubscription(ofMillis(1L)).subscribe(body -> executeInContext(request.getTracingContext(), //@formatter:off
+        bodyMono.subscribe(body -> executeInContext(request.getTracingContext(), //@formatter:off
                 () -> httpLogger.logRequest(Inbound, request.getMethod().name(), request.getURI(), headers, body)
                 )); //@formatter:on
     }
@@ -72,7 +71,7 @@ class ServerHttpLoggingHandler implements HttpHandler {
         boolean shouldLogBody = httpLogger.shouldLogResponseBody(status.value(), headers);
         Mono<byte[]> bodyMono = shouldLogBody ? response.getRecorder().getContent().checkpoint("LoggingServerHttpResponse") : EMPTY_BODY_MONO;
 
-        bodyMono.delaySubscription(ofMillis(1L)).subscribe(body -> executeInContext(response.getTracingContext(), //@formatter:off
+        bodyMono.subscribe(body -> executeInContext(response.getTracingContext(), //@formatter:off
                 () -> httpLogger.logResponse(Outbound, status.value(), status.getReasonPhrase(), headers, body)
                 )); //@formatter:on
     }
@@ -100,6 +99,7 @@ class ServerHttpLoggingHandler implements HttpHandler {
         @Override
         public Flux<DataBuffer> getBody() {
             logger.trace("Calling getBody() ...");
+
             return Flux.from(recorder.getPublisher());
         }
 
@@ -126,7 +126,7 @@ class ServerHttpLoggingHandler implements HttpHandler {
         }
 
         public WiretapRecorder getRecorder() {
-            Assert.notNull(recorder, "No WiretapRecorder: was the client request written?");
+            Assert.notNull(recorder, "No Wiretap: was the client request written?");
             return recorder;
         }
 

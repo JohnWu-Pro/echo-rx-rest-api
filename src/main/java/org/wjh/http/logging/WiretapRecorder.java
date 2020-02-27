@@ -10,6 +10,8 @@ import org.springframework.util.Assert;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.publisher.MonoProcessor;
+import reactor.core.scheduler.Scheduler;
+import reactor.core.scheduler.Schedulers;
 
 /**
  * Tap into a Publisher of data buffers to save the content.
@@ -17,6 +19,8 @@ import reactor.core.publisher.MonoProcessor;
 public class WiretapRecorder {
 
     private static final DataBufferFactory BUFFER_FACTORY = new DefaultDataBufferFactory();
+
+    private static final Scheduler LOGGING_SCHEDULER = Schedulers.newSingle("http-log");
 
     @Nullable
     private final Flux<? extends DataBuffer> publisher;
@@ -76,17 +80,16 @@ public class WiretapRecorder {
                 return content;
             }
             if (!hasContentConsumer) {
-                // Couple of possible cases:
-                // 1. Mock server never consumed request body (e.g. error before read)
-                // 2. FluxExchangeResult: getResponseBodyContent called before getResponseBody
-                // noinspection ConstantConditions
+                // Possible cases:
+                // 1. FluxExchangeResult: getResponseBodyContent called before getResponseBody
+                // no-inspection ConstantConditions
                 (publisher != null ? publisher : nestedPublisher) //@formatter:off
                         .onErrorMap(ex -> new IllegalStateException("Content has not been consumed, and an error was raised while attempting to produce it.", ex))
                         //.subscribe()
                         ; //@formatter:on
             }
             return content;
-        });
+        }).publishOn(LOGGING_SCHEDULER);
     }
 
     private void handleOnError(Throwable ex) {
@@ -100,6 +103,7 @@ public class WiretapRecorder {
             byte[] bytes = new byte[buffer.readableByteCount()];
             buffer.read(bytes);
             content.onNext(bytes);
+            content.onComplete();
         }
     }
 }

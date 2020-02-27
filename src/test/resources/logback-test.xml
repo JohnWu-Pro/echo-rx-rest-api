@@ -2,21 +2,19 @@
 
 <configuration debug="false">
 
-    <property name="LOG_PATTERN" value="%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n"/>
+    <property name="LOG_PATTERN" value="%d{HH:mm:ss.SSS} [%thread] [%X{traceId},%X{spanId}] %-5level %logger{36} %msg%n" />
 
-    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
         <encoder>
             <pattern>${LOG_PATTERN}</pattern>
             <charset>utf8</charset>
         </encoder>
     </appender>
 
-    <logger name="com.ethoca" level="TRACE" />
-
-    <!-- <logger name="ma.glasnost.orika" level="TRACE" /> -->
+    <logger name="org.wjh" level="TRACE" />
 
     <root level="INFO">
-        <appender-ref ref="STDOUT" />
+        <appender-ref ref="CONSOLE" />
     </root>
 
 </configuration>

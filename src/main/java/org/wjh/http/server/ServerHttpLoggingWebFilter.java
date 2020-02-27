@@ -29,7 +29,12 @@ class ServerHttpLoggingWebFilter implements WebFilter, Ordered {
     private void triggerRequestLoggingIfApplicable(ServerWebExchange exchange) {
         if (exchange.getRequest() instanceof LoggingServerHttpRequest) {
             LoggingServerHttpRequest decorated = (LoggingServerHttpRequest) exchange.getRequest();
-            decorated.triggerLogging((Span) exchange.getAttributes().get(TRACE_REQUEST_ATTR));
+            decorated.triggerLogging(currentSpan(exchange));
         }
     }
+
+    private Span currentSpan(ServerWebExchange exchange) {
+        return (Span) exchange.getAttributes().get(TRACE_REQUEST_ATTR);
+    }
+
 }
