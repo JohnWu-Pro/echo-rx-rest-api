@@ -157,13 +157,13 @@ class ServerHttpLoggingHandler implements HttpHandler {
             return super.setComplete();
         }
 
-        private AtomicInteger logCount = new AtomicInteger(0);
+        private AtomicInteger triggeredCount = new AtomicInteger(0);
 
         private void triggerLogging() {
-            if (logCount.getAndIncrement() == 0) {
+            if (triggeredCount.getAndIncrement() == 0) {
                 executeInContext(context, () -> logResponse(this));
             } else {
-                logger.debug("Suppressed of triggering logging.");
+                logger.debug("Suppressed to trigger logging (Triggered Count: {}).", triggeredCount.get());
             }
         }
     }

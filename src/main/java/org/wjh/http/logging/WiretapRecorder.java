@@ -32,8 +32,6 @@ public class WiretapRecorder {
 
     private final MonoProcessor<byte[]> content = MonoProcessor.create();
 
-    private volatile boolean hasContentConsumer;
-
     public WiretapRecorder(@Nullable Publisher<? extends DataBuffer> publisher,
             @Nullable Publisher<? extends Publisher<? extends DataBuffer>> nestedPublisher) {
 
@@ -43,7 +41,6 @@ public class WiretapRecorder {
 
         this.publisher = publisher == null ? null : //@formatter:off
                 Flux.from(publisher)
-                        .doOnSubscribe(s -> this.hasContentConsumer = true)
                         .doOnNext(this.buffer::write)
                         .doOnError(this::handleOnError)
                         .doOnCancel(this::handleOnComplete)
@@ -52,7 +49,6 @@ public class WiretapRecorder {
 
         this.nestedPublisher = nestedPublisher == null ? null : //@formatter:off
                 Flux.from(nestedPublisher)
-                        .doOnSubscribe(s -> this.hasContentConsumer = true)
                         .map(p -> Flux.from(p).doOnNext(this.buffer::write).doOnError(this::handleOnError))
                         .doOnError(this::handleOnError)
                         .doOnCancel(this::handleOnComplete)
@@ -75,35 +71,25 @@ public class WiretapRecorder {
     }
 
     public Mono<byte[]> getContent() {
-        return Mono.defer(() -> {
-            if (content.isTerminated()) {
-                return content;
-            }
-            if (!hasContentConsumer) {
-                // Possible cases:
-                // 1. FluxExchangeResult: getResponseBodyContent called before getResponseBody
-                // no-inspection ConstantConditions
-                (publisher != null ? publisher : nestedPublisher) //@formatter:off
-                        .onErrorMap(ex -> new IllegalStateException("Content has not been consumed, and an error was raised while attempting to produce it.", ex))
-                        //.subscribe()
-                        ; //@formatter:on
-            }
-            return content;
-        }).publishOn(LOGGING_SCHEDULER);
+        return Mono.defer(() -> content).publishOn(LOGGING_SCHEDULER);
     }
 
     private void handleOnError(Throwable ex) {
-        if (!content.isTerminated()) {
-            content.onError(ex);
+        if (content.isTerminated()) {
+            return;
         }
+
+        content.onError(ex);
     }
 
     private void handleOnComplete() {
-        if (!content.isTerminated()) {
-            byte[] bytes = new byte[buffer.readableByteCount()];
-            buffer.read(bytes);
-            content.onNext(bytes);
-            content.onComplete();
+        if (content.isTerminated()) {
+            return;
         }
+
+        byte[] bytes = new byte[buffer.readableByteCount()];
+        buffer.read(bytes);
+        content.onNext(bytes);
+        content.onComplete();
     }
 }
