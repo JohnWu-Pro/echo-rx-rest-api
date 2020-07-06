@@ -18,7 +18,7 @@ This is a simple message echoing REST service, includes the following points:
 
 * For the main service (at http://localhost:8080):
    ```
-   java -jar echo-rx-rest-api-1.0.0-SNAPSHOT.jar -Dspring.profiles.active=main
+   java -jar echo-rx-rest-api-1.0.0-SNAPSHOT.jar --spring.profiles.active=main
    ```
    OR
    ```
@@ -27,12 +27,14 @@ This is a simple message echoing REST service, includes the following points:
 
 * For the sub service (at http://localhost:8081):
    ```
-   java -jar echo-rx-rest-api-1.0.0-SNAPSHOT.jar -Dspring.profiles.active=sub
+   java -jar echo-rx-rest-api-1.0.0-SNAPSHOT.jar --spring.profiles.active=sub
    ```
    OR
    ```
    mvn spring-boot:run -Dspring-boot.run.profiles=sub
    ```
 
-# TODOs
-1. Add response header X-B3-TraceId
+# The Echo Service
+1. In the standalone mode, the service echoes the `input` message with message `SOLE::input`;
+1. In the sub-service mode, the service echoes the `input` message with message `SUB::input`;
+1. In the main-service mode (assuming the sub-service is working), the service echoes the `input` message with message `MAIN::SUB::input`.
