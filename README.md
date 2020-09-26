@@ -8,7 +8,7 @@ This is a simple message echoing REST service, includes the following points:
 # HOW-TOs
 1. To launch the application as a standalone service (at http://localhost:8080), use the `sole` profile, for example:
    ```
-   java -jar echo-rx-rest-api-1.0.0-SNAPSHOT.jar -Dspring.profiles.active=sole
+   java -jar echo-rx-rest-api-1.0.0-SNAPSHOT.jar --spring.profiles.active=sole
    ```
    OR
    ```
